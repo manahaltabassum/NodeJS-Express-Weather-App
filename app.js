@@ -20,6 +20,12 @@ app.use(bodyParser.urlencoded({extended: true}));
 // set up template engine
 app.set('view engine', 'ejs');
 
+app.use((req, res, next) => {
+    console.log(req._parsedUrl.query);
+    console.log(req.query);
+    next();
+});
+
 function getTemps() {
     const promise = new Promise((resolve, reject) => {
         for (let i = 0; i < latitude.length; i++){
@@ -28,52 +34,63 @@ function getTemps() {
             let url = `https://api.darksky.net/forecast/${apiKey}/${lat},${long}`;
             request(url, (err, response, body) => {
                 if (err){
-                    temps.push('Error, unable to get temperature');
+                    // temps.push('Error, unable to get temperature');
+                    temps.push(null);
+                    console.log('error', err);
                 } else {
                     let weather = JSON.parse(body);
                     let temp = `${weather.currently.temperature}`;
                     // console.log(temp);
                     temps.push(temp);
                     // console.log(temps);
-                    if (temps.length == 4){
-                        resolve();
-                    }
+                } 
+                if (temps.length == 4){
+                    resolve();
                 }
             })
         }
+        // resolve();
     });
     return promise;
 }
 
+app.route('/weather')
+    .get((req, res) => {
+        // res.send('Hello World!');
+        // console.log(req._parsedUrl.query);
+        // console.log(req.query);
+        // renders view and sends equivalent HTML to client
+        // console.log(req);
+        getTemps().then(() => {
+            console.log(temps);
+            res.render('index', {weather: null, error: null, campbell: temps[0], omaha: temps[1], austin: temps[2], timonium: temps[3]});
+        });
+    })
+    .post((req, res) => {
+        let lat = req.body.latitude;
+        let long = req.body.longitude;
+        let url = `https://api.darksky.net/forecast/${apiKey}/${lat},${long}`;
+    
+        // pass in url that returns a callback function
+        // if error in request, log the error
+        // if no error, then log contents of response body
+        request(url, (err, response, body) => {
+            if (err){
+                res.render('index', {weather: null, error: 'Error, please try again', campbell: temps[0], omaha: temps[1], austin: temps[2], timonium: temps[3]});
+                // console.log('error:', error);
+            } else {
+                let weather = JSON.parse(body);
+                let message = `It's ${weather.currently.temperature} degrees at ${latitude} and ${longitude}!`;
+                // console.log(message);
+                res.render('index', {weather: message, error: null, campbell: temps[0], omaha: temps[1], austin: temps[2], timonium: temps[3]});
+            }
+        });
+    })
 
-app.get('/', (req, res) => {
-    // res.send('Hello World!');
-    // renders view and sends equivalent HTML to client
-    getTemps().then(() => {
-        console.log(temps);
-        res.render('index', {weather: null, error: null, campbell: temps[0], omaha: temps[1], austin: temps[2], timonium: temps[3]});
-    });
-});
-
-app.post('/', (req, res) => {
-    let lat = req.body.latitude;
-    let long = req.body.longitude;
-    let url = `https://api.darksky.net/forecast/${apiKey}/${lat},${long}`;
-
-    // pass in url that returns a callback function
-    // if error in request, log the error
-    // if no error, then log contents of response body
-    request(url, (err, response, body) => {
-        if (err){
-            res.render('index', {weather: null, error: 'Error, please try again', campbell: temps[0], omaha: temps[1], austin: temps[2], timonium: temps[3]});
-            // console.log('error:', error);
-        } else {
-            let weather = JSON.parse(body);
-            let message = `It's ${weather.currently.temperature} degrees at ${latitude} and ${longitude}!`;
-            // console.log(message);
-            res.render('index', {weather: message, error: null, campbell: temps[0], omaha: temps[1], austin: temps[2], timonium: temps[3]});
-        }
-    });
+app.get('*', (req,res) => {
+    // console.log(req);
+    console.log('Redirecting...');
+    res.redirect('/weather');
 });
 
 app.listen(3000, () => {
