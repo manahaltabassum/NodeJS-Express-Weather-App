@@ -6,3 +6,13 @@ Create a middleware on the server‐side that will log to the console all parame
 
 Used the following tutorial to aid in development:
 https://codeburst.io/build-a-weather-website-in-30-minutes-with-node-js-express-openweather-a317f904897b
+
+To install express:
+<pre><code>npm install --save express</code></pre>
+
+To install ejs:
+<pre><code>npm install ejs --save</code></pre>
+
+To use body-parser:
+<pre><code>npm install body-parser --save</code></pre>
+
