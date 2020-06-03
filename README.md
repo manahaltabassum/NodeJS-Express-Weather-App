@@ -1,6 +1,6 @@
 # NodeJS-Express-Weather-App
 
-**NOTE: Before running app, replace apiKey with valid key.**
+**NOTE: Before running app, replace apiKey var in app.js with valid key.**
 
 Create a NodeJS express weather application that obtains weather data for Campbell, CA, Omaha, NE, Austin, TX and Timonium, MD. Display the weather results in a table and omit any locations that fail to return data.
 
