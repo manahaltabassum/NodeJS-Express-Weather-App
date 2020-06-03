@@ -1,0 +1,11 @@
+Concerns:
+- Use of promises
+- Is there a better way to run multiple API calls for the table
+
+Difficulties
+- Working with callbacks to ensure API calls are completed
+  before displaying the table
+
+To Fix
+- API calls for table only on GET request. Outdated data used
+  for POST requests.
